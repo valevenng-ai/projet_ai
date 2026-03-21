@@ -34,12 +34,12 @@ public class Proposition {
     public String toString() {
 
         return String.format(
-            "PropositionPhase1 {" +
+            "Proposition {" +
             "\n  budget  : %.1fM€" +
             "\n  duree   : %dmin" +
             "\n}",
             budget / 1_000_000.0,
-            duree,
+            duree
         );
     }
     

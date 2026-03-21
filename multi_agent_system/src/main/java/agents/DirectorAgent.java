@@ -1,10 +1,11 @@
-package main.java;
+package main.java.agents;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
+import main.java.Proposition;
 
 public class DirectorAgent extends Agent{
     int budget_actuel;
@@ -21,8 +22,7 @@ public class DirectorAgent extends Agent{
                     System.out.println(p.toString());
                     budget_actuel = p.getBudget() + 2_500_000;
                     duree_actuel = p.getDuree() + 10;
-                }
-                else{
+                } else{
                     block();
                 }
                 Proposition p = new Proposition(budget_actuel, duree_actuel);

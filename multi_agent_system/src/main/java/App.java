@@ -1,14 +1,13 @@
 package main.java;
 
-import main.java.DirectorAgent;
-import main.java.ProducerAgent;
-
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
+import main.java.agents.DirectorAgent;
+import main.java.agents.ProducerAgent;
 
 public class App {
     public static void main(String[] args) {

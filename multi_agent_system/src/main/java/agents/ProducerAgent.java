@@ -1,10 +1,11 @@
-package main.java;
+package main.java.agents;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
+import main.java.Proposition;
 
 
 public class ProducerAgent extends Agent{
@@ -15,7 +16,7 @@ public class ProducerAgent extends Agent{
     protected void setup(){
         Proposition proposition = new Proposition(ProducerAgent.BUDGET_TARGET, ProducerAgent.DUREE);
 
-        ACLMessage msg_sent = new ACLMessage(ACLMessage.INFORM);
+        ACLMessage msg_sent = new ACLMessage(ACLMessage.PROPOSE);
                 msg_sent.addReceiver(new AID("Director", AID.ISLOCALNAME));
                 msg_sent.setContent(proposition.toJSON());
                 send(msg_sent);
@@ -26,7 +27,7 @@ public class ProducerAgent extends Agent{
                 if (msg_received != null) {
                 System.out.println("Received message from agent : "
                 + msg_received.getSender().getName() + " > "
-                + msg_received.getContent());
+                + "\n" + msg_received.getContent().toString());
                 }
                 else{
                     block();
