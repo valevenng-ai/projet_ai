@@ -20,9 +20,9 @@ public class App {
         AgentController ac2;
         try {
             ac = mc.createNewAgent("Director", DirectorAgent.class.getName(), null);
-            ac.start();
             ac2 = mc.createNewAgent("Producer", ProducerAgent.class.getName(), null);
             ac2.start();
+            ac.start();
         } catch (StaleProxyException e) { }
     }
 }
