@@ -35,7 +35,6 @@ public class ProducerAgent extends Agent{
                 msg_sent.addReceiver(new AID("Director", AID.ISLOCALNAME));
                 msg_sent.setContent("Hello agent1");
                 send(msg_sent);
-                doDelete();
             }
         };
         addBehaviour(behaviour);
