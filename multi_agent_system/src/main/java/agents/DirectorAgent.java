@@ -11,7 +11,7 @@ public class DirectorAgent extends Agent{
     int budget_actuel;
     int duree_actuel;
     protected void setup(){
-        Behaviour behaviour = new OneShotBehaviour((this)) {
+        Behaviour behaviour = new CyclicBehaviour((this)) {
             public void action(){
                 ACLMessage msg_received = receive();
                 if (msg_received != null) {

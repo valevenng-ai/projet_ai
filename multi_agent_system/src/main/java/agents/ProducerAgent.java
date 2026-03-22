@@ -21,7 +21,7 @@ public class ProducerAgent extends Agent{
                 msg_sent.setContent(proposition.toJSON());
                 send(msg_sent);
                 
-        Behaviour behaviour = new OneShotBehaviour((this)) {
+        Behaviour behaviour = new CyclicBehaviour((this)) {
             public void action(){
                 ACLMessage msg_received = receive();
                 if (msg_received != null) {
@@ -34,7 +34,7 @@ public class ProducerAgent extends Agent{
                 }
                 ACLMessage msg_sent = new ACLMessage(ACLMessage.INFORM);
                 msg_sent.addReceiver(new AID("Director", AID.ISLOCALNAME));
-                msg_sent.setContent("Hello agent1");
+                msg_sent.setContent(proposition.toJSON());
                 send(msg_sent);
             }
         };
