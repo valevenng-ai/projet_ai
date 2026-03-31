@@ -1,9 +1,14 @@
 package main.java.behaviours;
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.FSMBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.lang.acl.ACLMessage;
+import main.java.Proposition;
+import main.java.agents.DirectorAgent;
 
-public class NegociationBehaviour extends FSMBehaviour{
+public class NegociationBehaviour extends FSMBehaviour {
     private static final String WAIT  = "WAIT_REPLY";
     private static final String EVAL  = "EVALUATE";
     private static final String SEND  = "SEND_PROPOSITION";
@@ -14,17 +19,25 @@ public class NegociationBehaviour extends FSMBehaviour{
     private static final int TO_ACC = 2;
     private static final int TO_WAIT = 3;
 
+    private String otherAgent;
+
     public NegociationBehaviour(Agent a){
         super(a);
-        this.registerFirstState(new WaitPropositionBehaviour(), WAIT);
-        this.registerState(new EvaluateBehaviour(), EVAL);
-        this.registerState(new SendPropositionBehaviour(), SEND);
-        this.registerLastState(new AcceptBehaviour(), ACC);
+        registerFirstState(new WaitPropositionBehaviour(a), WAIT);
+        registerState(new EvaluateBehaviour(a), EVAL);
+        registerState(new SendPropositionBehaviour(a), SEND);
+        registerLastState(new AcceptBehaviour(a), ACC);
 
-        this.registerTransition("WAIT",  "EVAL",  TO_EVAL);
-        this.registerTransition("EVAL", "SEND", TO_SEND);
-        this.registerTransition("EVAL",  "ACC", TO_ACC);
-        this.registerTransition("SEND",  "WAIT",  TO_WAIT);
+        registerTransition("WAIT",  "EVAL",  TO_EVAL);
+        registerTransition("EVAL", "SEND", TO_SEND);
+        registerTransition("EVAL",  "ACC", TO_ACC);
+        registerTransition("SEND",  "WAIT",  TO_WAIT);
     }
 
+    
+
+    
+    
+
+    
 }

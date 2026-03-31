@@ -22,14 +22,15 @@ public class DirectorAgent extends Agent{
                     System.out.println(p.toString());
                     budget_actuel = p.getBudget() + 2_500_000;
                     duree_actuel = p.getDuree() + 10;
+
+                    Proposition new_p = new Proposition(budget_actuel, duree_actuel);
+                    ACLMessage msg_sent = new ACLMessage(ACLMessage.INFORM);
+                    msg_sent.addReceiver(new AID("Producer", AID.ISLOCALNAME));
+                    msg_sent.setContent(new_p.toJSON());
+                    send(msg_sent);
                 } else{
                     block();
                 }
-                Proposition p = new Proposition(budget_actuel, duree_actuel);
-                ACLMessage msg_sent = new ACLMessage(ACLMessage.INFORM);
-                msg_sent.addReceiver(new AID("Producer", AID.ISLOCALNAME));
-                msg_sent.setContent(p.toJSON());
-                send(msg_sent);
             }
         };
         addBehaviour(behaviour);
