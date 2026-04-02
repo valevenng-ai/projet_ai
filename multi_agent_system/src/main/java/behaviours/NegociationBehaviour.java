@@ -5,8 +5,8 @@ import jade.core.Agent;
 import jade.core.behaviours.FSMBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-import main.java.Proposition;
 import main.java.agents.DirectorAgent;
+import main.java.utils.Proposition;
 
 public class NegociationBehaviour extends FSMBehaviour {
     private static final String WAIT  = "WAIT_REPLY";

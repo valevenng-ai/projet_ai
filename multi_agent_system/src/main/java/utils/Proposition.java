@@ -1,4 +1,4 @@
-package main.java;
+package main.java.utils;
 public class Proposition {
     private int budget;
     private int duree;   

@@ -5,7 +5,7 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-import main.java.Proposition;
+import main.java.utils.Proposition;
 
 public class DirectorAgent extends Agent{
     int budget_actuel;

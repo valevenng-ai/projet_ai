@@ -6,12 +6,12 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.FSMBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-import main.java.Proposition;
 import main.java.behaviours.AcceptBehaviour;
 import main.java.behaviours.EvaluateBehaviour;
 import main.java.behaviours.NegociationBehaviour;
 import main.java.behaviours.SendPropositionBehaviour;
 import main.java.behaviours.WaitPropositionBehaviour;
+import main.java.utils.Proposition;
 
 
 public class ProducerAgent extends Agent{

@@ -2,10 +2,9 @@ package main.java.behaviours;
 
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
-
-import main.java.Proposition;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
+import main.java.utils.Proposition;
 
 public class SendPropositionBehaviour extends OneShotBehaviour {
 
