@@ -1,19 +1,13 @@
-package main.java.agents;
+package main.java;
 
-import jade.core.AID;
-import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.FSMBehaviour;
-import jade.core.behaviours.OneShotBehaviour;
-import jade.lang.acl.ACLMessage;
-
-import main.java.behaviours.AcceptBehaviour;
-import main.java.behaviours.EvaluateBehaviour;
-import main.java.behaviours.NegociationBehaviour;
-import main.java.behaviours.SendPropositionBehaviour;
-import main.java.behaviours.WaitPropositionBehaviour;
-import main.java.utils.Proposition;
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.core.Runtime;
+import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
+import jade.wrapper.StaleProxyException;
+import main.java.agents.DirectorAgent;
+import main.java.agents.ProducerAgent;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,16 +18,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class ProducerAgent extends Agent{
+public class ApiTest {
     final static private int BUDGET_MAX = 20_000_000; 
     final static private int BUDGET_MIN = 15_000_000;
-    final static private int BUDGET_TARGET = 16_000_000; 
-    final static private int DUREE = 120; 
-
-    private static final int TO_EVAL = 0;
-    private static final int TO_SEND = 1;
-    private static final int TO_ACC = 2;
-    private static final int TO_WAIT = 3;
 
     private static final String API_URL = "https://api.ai-raison.com/executions/PRJ31125/latest";
     private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
@@ -169,41 +156,96 @@ public class ProducerAgent extends Agent{
         }
     }
 
-    protected void setup(){
-        Proposition proposition = new Proposition(ProducerAgent.BUDGET_TARGET, ProducerAgent.DUREE);
+    public static void apiGet(){
+        HttpURLConnection conn = null;
 
-        ACLMessage msg_sent = new ACLMessage(ACLMessage.PROPOSE);
-                msg_sent.addReceiver(new AID("Director", AID.ISLOCALNAME));
-                msg_sent.setContent(proposition.toJSON());
-                send(msg_sent);
-                
-        Behaviour behaviour = new CyclicBehaviour((this)) {
-            public void action(){
-                ACLMessage msg_received = receive();
-                if (msg_received != null) {
-                System.out.println("Received message from agent : "
-                + msg_received.getSender().getName() + " > "
-                + "\n" + msg_received.getContent().toString());
-                }
-                else{
-                    block();
-                }
-                ACLMessage msg_sent = new ACLMessage(ACLMessage.INFORM);
-                msg_sent.addReceiver(new AID("Director", AID.ISLOCALNAME));
-                msg_sent.setContent(proposition.toJSON());
-                send(msg_sent);
+        try {
+            // ─── 1. Connexion ────────────────────────────────────────────────────
+
+            URL url = new URL(API_URL);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("x-api-key", API_KEY);
+
+            // ─── 2. Lecture de la réponse ────────────────────────────────────────
+
+            int statusCode = conn.getResponseCode();
+            System.out.println("Status HTTP : " + statusCode);
+
+            BufferedReader reader;
+            if (statusCode >= 200 && statusCode < 300) {
+                reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
             }
-        };
-        FSMBehaviour fsm = new FSMBehaviour(this);
-        fsm.registerFirstState(new WaitPropositionBehaviour(this), "WAIT_REPLY");
-        fsm.registerState(new EvaluateBehaviour(this), "EVALUATE");
-        fsm.registerState(new SendPropositionBehaviour(this), "SEND_PROPOSITION");
-        fsm.registerLastState(new AcceptBehaviour(this), "ACCEPT");
 
-        fsm.registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
-        fsm.registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);
-        fsm.registerTransition("EVALUATE",  "ACCEPT", TO_ACC);
-        fsm.registerTransition("SEND_PROPOSITION",  "WAIT_REPLY",  TO_WAIT);
-        addBehaviour(fsm);
+            StringBuilder responseBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+            reader.close();
+
+            // ─── 3. Parsing de la réponse ────────────────────────────────────────
+
+            if (statusCode >= 200 && statusCode < 300) {
+                JSONObject response = new JSONObject(responseBuilder.toString());
+
+                // --- Lecture des éléments ---
+                JSONArray elements = response.getJSONArray("elements");
+                System.out.println("=== ELEMENTS (" + elements.length() + ") ===");
+
+                for (int i = 0; i < elements.length(); i++) {
+                    JSONObject element = elements.getJSONObject(i);
+
+                    String name = element.getString("label");
+                    String id   = element.getString("id");
+
+                    System.out.println("\n  Élément " + (i + 1) + " :");
+                    System.out.println("    Name : " + name);
+                    System.out.println("    ID   : " + id);
+
+                    // Paramètres de l'élément
+                    JSONArray parameters = element.getJSONArray("parameters");
+                    System.out.println("    Paramètres (" + parameters.length() + ") :");
+                    for (int j = 0; j < parameters.length(); j++) {
+                        JSONObject param = parameters.getJSONObject(j);
+                        System.out.println("      - " + param.getString("name"));
+                    }
+                }
+
+                // --- Lecture des options ---
+                JSONArray options = response.getJSONArray("options");
+                System.out.println("\n=== OPTIONS (" + options.length() + ") ===");
+
+                for (int i = 0; i < options.length(); i++) {
+                    JSONObject option = options.getJSONObject(i);
+
+                    String name = option.getString("label");
+                    String id   = option.getString("id");
+
+                    System.out.println("\n  Option " + (i + 1) + " :");
+                    System.out.println("    Name : " + name);
+                    System.out.println("    ID   : " + id);
+                }
+
+            } else {
+                System.out.println("Erreur serveur : " + responseBuilder);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la requête : " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+    public static void main(String[] args) {
+        //apiGet();
+        apiPost(22_000_000);
     }
 }
