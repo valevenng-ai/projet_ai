@@ -15,12 +15,13 @@ public class WaitPropositionBehaviour extends OneShotBehaviour{
         @Override
         public void action() {
             ACLMessage reply = null;
-                while (reply == null){
-                    reply = myAgent.receive();
-                }
-                System.out.println("Received message from agent : "
-                + reply.getSender().getName() + " > "
-                + "\n" + reply.getContent().toString());
+            while (reply == null){
+                reply = myAgent.receive();
+                if (reply == null) block(100);
+            }
+            System.out.println("Received message from agent : "
+            + reply.getSender().getName() + " > "
+            + "\n" + reply.getContent().toString());
         }
         @Override public int onEnd() {return 0; }
     }

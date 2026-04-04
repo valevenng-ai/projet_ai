@@ -19,10 +19,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class App {
-    final static private int BUDGET_MAX = 20_000_000; 
-    final static private int BUDGET_MIN = 15_000_000;
-
-    private static final String API_URL = "https://api.ai-raison.com/executions/PRJ31125/latest";
     public static void main(String[] args) {
         Runtime runtime = Runtime.instance();
         Profile config = new ProfileImpl("localhost", 8888, null);

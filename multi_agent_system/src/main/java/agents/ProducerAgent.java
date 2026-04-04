@@ -10,7 +10,7 @@ import jade.lang.acl.ACLMessage;
 
 import main.java.behaviours.AcceptBehaviour;
 import main.java.behaviours.EvaluateBehaviour;
-import main.java.behaviours.NegociationBehaviour;
+import main.java.behaviours.ProducerNegociationBehaviour;
 import main.java.behaviours.SendPropositionBehaviour;
 import main.java.behaviours.WaitPropositionBehaviour;
 import main.java.utils.Proposition;
@@ -194,16 +194,6 @@ public class ProducerAgent extends Agent{
                 send(msg_sent);
             }
         };
-        FSMBehaviour fsm = new FSMBehaviour(this);
-        fsm.registerFirstState(new WaitPropositionBehaviour(this), "WAIT_REPLY");
-        fsm.registerState(new EvaluateBehaviour(this), "EVALUATE");
-        fsm.registerState(new SendPropositionBehaviour(this), "SEND_PROPOSITION");
-        fsm.registerLastState(new AcceptBehaviour(this), "ACCEPT");
-
-        fsm.registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
-        fsm.registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);
-        fsm.registerTransition("EVALUATE",  "ACCEPT", TO_ACC);
-        fsm.registerTransition("SEND_PROPOSITION",  "WAIT_REPLY",  TO_WAIT);
-        addBehaviour(fsm);
+        addBehaviour(new ProducerNegociationBehaviour(this));
     }
 }
