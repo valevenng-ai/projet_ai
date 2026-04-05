@@ -2,6 +2,7 @@ package main.java.behaviours;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.DataStore;
 import jade.core.behaviours.FSMBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -15,12 +16,27 @@ public class DirectorNegociationBehaviour extends FSMBehaviour{
     private static final int TO_WAIT = 3;
 
 
-    public ProducerNegociationBehaviour(DirectorAgent a){
+    public DirectorNegociationBehaviour(DirectorAgent a){
         super(a);
-        registerFirstState(new WaitPropositionBehaviour(a), "WAIT_REPLY");
-        registerState(new DirectorEvaluateBehaviour(a), "EVALUATE");
-        registerState(new SendPropositionBehaviour(a), "SEND_PROPOSITION");
-        registerLastState(new AcceptBehaviour(a), "ACCEPT");
+
+        DataStore ds = new DataStore();
+        setDataStore(ds);
+
+        WaitPropositionBehaviour s1 = new WaitPropositionBehaviour(a);
+        s1.setDataStore(ds);
+        registerFirstState(s1, "WAIT_REPLY");
+
+        DirectorEvaluateBehaviour s2 = new DirectorEvaluateBehaviour(a);
+        s2.setDataStore(ds);
+        registerState(s2, "EVALUATE");
+
+        SendPropositionBehaviour s3 = new SendPropositionBehaviour(a);
+        s3.setDataStore(ds);
+        registerState(s3, "SEND_PROPOSITION");
+
+        AcceptBehaviour s4 = new AcceptBehaviour(a);
+        s4.setDataStore(ds);
+        registerLastState(s4, "ACCEPT");
 
         registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
         registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);

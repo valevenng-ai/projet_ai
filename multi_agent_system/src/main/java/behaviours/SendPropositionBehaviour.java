@@ -15,7 +15,7 @@ public class SendPropositionBehaviour extends OneShotBehaviour {
 
         @Override
         public void action() {
-            Proposition prop = new Proposition(10_000_000, 110);
+            Proposition prop = (Proposition) getDataStore().get("proposition_to_send");
             ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
             if (myAgent instanceof ProducerAgent){
                 msg.addReceiver(new AID("Director", AID.ISLOCALNAME));

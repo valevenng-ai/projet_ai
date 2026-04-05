@@ -4,15 +4,9 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.FSMBehaviour;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 
-import main.java.behaviours.AcceptBehaviour;
-import main.java.behaviours.EvaluateBehaviour;
 import main.java.behaviours.ProducerNegociationBehaviour;
-import main.java.behaviours.SendPropositionBehaviour;
-import main.java.behaviours.WaitPropositionBehaviour;
 import main.java.utils.Proposition;
 
 import org.json.JSONArray;

@@ -1,13 +1,8 @@
 package main.java.behaviours;
 
-import jade.core.AID;
-import jade.core.Agent;
+import jade.core.behaviours.DataStore;
 import jade.core.behaviours.FSMBehaviour;
-import jade.core.behaviours.OneShotBehaviour;
-import jade.lang.acl.ACLMessage;
-import main.java.agents.DirectorAgent;
 import main.java.agents.ProducerAgent;
-import main.java.utils.Proposition;
 
 
 public class ProducerNegociationBehaviour extends FSMBehaviour {
@@ -19,10 +14,24 @@ public class ProducerNegociationBehaviour extends FSMBehaviour {
 
     public ProducerNegociationBehaviour(ProducerAgent a){
         super(a);
-        registerFirstState(new WaitPropositionBehaviour(a), "WAIT_REPLY");
-        registerState(new EvaluateBehaviour(a), "EVALUATE");
-        registerState(new SendPropositionBehaviour(a), "SEND_PROPOSITION");
-        registerLastState(new AcceptBehaviour(a), "ACCEPT");
+        DataStore ds = new DataStore();
+        setDataStore(ds);
+
+        WaitPropositionBehaviour s1 = new WaitPropositionBehaviour(a);
+        s1.setDataStore(ds);
+        registerFirstState(s1, "WAIT_REPLY");
+
+        ProducerEvaluateBehaviour s2 = new ProducerEvaluateBehaviour(a);
+        s2.setDataStore(ds);
+        registerState(s2, "EVALUATE");
+
+        SendPropositionBehaviour s3 = new SendPropositionBehaviour(a);
+        s3.setDataStore(ds);
+        registerState(s3, "SEND_PROPOSITION");
+
+        AcceptBehaviour s4 = new AcceptBehaviour(a);
+        s4.setDataStore(ds);
+        registerLastState(s4, "ACCEPT");
 
         registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
         registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);

@@ -5,6 +5,7 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
+import main.java.behaviours.DirectorNegociationBehaviour;
 import main.java.utils.Proposition;
 
 public class DirectorAgent extends Agent{
@@ -33,7 +34,7 @@ public class DirectorAgent extends Agent{
                 }
             }
         };
-        addBehaviour(behaviour);
+        addBehaviour(new DirectorNegociationBehaviour(this));
 
     }
 }

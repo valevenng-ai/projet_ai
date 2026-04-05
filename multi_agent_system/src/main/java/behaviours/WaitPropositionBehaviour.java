@@ -22,6 +22,8 @@ public class WaitPropositionBehaviour extends OneShotBehaviour{
             System.out.println("Received message from agent : "
             + reply.getSender().getName() + " > "
             + "\n" + reply.getContent().toString());
+            Proposition p = Proposition.fromJSON(reply.getContent());
+            getDataStore().put("proposition_received", p);
         }
         @Override public int onEnd() {return 0; }
     }
