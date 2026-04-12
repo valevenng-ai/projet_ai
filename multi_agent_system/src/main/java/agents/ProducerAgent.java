@@ -32,7 +32,7 @@ public class ProducerAgent extends Agent{
     private static final String API_URL = "https://api.ai-raison.com/executions/PRJ31125/latest";
     private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
 
-    public static void apiPost(int budget){
+    public static void getDecision1(int budget){
         // ─── 1. Construction du body JSON ───────────────────────────────────────
 
         JSONObject paramBudget = new JSONObject();

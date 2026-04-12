@@ -23,14 +23,15 @@ public class ApiTest {
     final static private int BUDGET_MIN = 15_000_000;
 
     private static final String API_URL = "https://api.ai-raison.com/executions/PRJ31125/latest";
+    private static final String API_URL_DIRECTOR = "https://api.ai-raison.com/executions/PRJ32025/latest";
     private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
 
-    public static void apiPost(int budget){
+    public static void apiPost(int budget, int iteration){
         // ─── 1. Construction du body JSON ───────────────────────────────────────
 
         JSONObject paramBudget = new JSONObject();
         paramBudget.put("name", "Budget");
-        paramBudget.put("value", String.valueOf(22_000_000));
+        paramBudget.put("value", String.valueOf(budget));
 
         JSONObject paramMax = new JSONObject();
         paramMax.put("name", "Max");
@@ -39,6 +40,10 @@ public class ApiTest {
         JSONObject paramMin = new JSONObject();
         paramMin.put("name", "Min");
         paramMin.put("value", String.valueOf(BUDGET_MIN));
+
+        JSONObject paramI = new JSONObject();
+        paramI.put("name", "I");
+        paramI.put("value", String.valueOf(iteration));
 
         JSONArray parameters1 = new JSONArray();
         parameters1.put(paramBudget);
@@ -65,16 +70,37 @@ public class ApiTest {
         element3.put("label", "What's the min budget");
         element3.put("parameters", parameters3);
 
+        JSONArray parameters4 = new JSONArray();
+        parameters4.put(paramI);
+
+        JSONObject element4 = new JSONObject();
+        element4.put("id", "OPT411518");
+        element4.put("label", "What iteration");
+        element4.put("parameters", parameters4);
+
         JSONArray elements = new JSONArray();
         elements.put(element1);
         elements.put(element2);
         elements.put(element3);
+        elements.put(element4);
 
-        JSONObject option = new JSONObject();
-        option.put("id", "OPT402868");
+        JSONObject option1 = new JSONObject();
+        option1.put("id", "OPT403118");
+
+        JSONObject option2 = new JSONObject();
+        option2.put("id", "OPT402818");
+
+        JSONObject option3 = new JSONObject();
+        option3.put("id", "OPT402868");
+
+        JSONObject option4 = new JSONObject();
+        option4.put("id", "OPT402768");
 
         JSONArray options = new JSONArray();
-        options.put(option);
+        options.put(option1);
+        options.put(option2);
+        options.put(option3);
+        options.put(option4);
 
         JSONObject requestBody = new JSONObject();
         requestBody.put("elements", elements);
@@ -244,8 +270,98 @@ public class ApiTest {
             }
         }
     }
+
+    public static void apiGetDirector(){
+        HttpURLConnection conn = null;
+
+        try {
+            // ─── 1. Connexion ────────────────────────────────────────────────────
+
+            URL url = new URL(API_URL_DIRECTOR);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("x-api-key", API_KEY);
+
+            // ─── 2. Lecture de la réponse ────────────────────────────────────────
+
+            int statusCode = conn.getResponseCode();
+            System.out.println("Status HTTP : " + statusCode);
+
+            BufferedReader reader;
+            if (statusCode >= 200 && statusCode < 300) {
+                reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
+            }
+
+            StringBuilder responseBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+            reader.close();
+
+            // ─── 3. Parsing de la réponse ────────────────────────────────────────
+
+            if (statusCode >= 200 && statusCode < 300) {
+                JSONObject response = new JSONObject(responseBuilder.toString());
+
+                // --- Lecture des éléments ---
+                JSONArray elements = response.getJSONArray("elements");
+                System.out.println("=== ELEMENTS (" + elements.length() + ") ===");
+
+                for (int i = 0; i < elements.length(); i++) {
+                    JSONObject element = elements.getJSONObject(i);
+
+                    String name = element.getString("label");
+                    String id   = element.getString("id");
+
+                    System.out.println("\n  Élément " + (i + 1) + " :");
+                    System.out.println("    Name : " + name);
+                    System.out.println("    ID   : " + id);
+
+                    // Paramètres de l'élément
+                    JSONArray parameters = element.getJSONArray("parameters");
+                    System.out.println("    Paramètres (" + parameters.length() + ") :");
+                    for (int j = 0; j < parameters.length(); j++) {
+                        JSONObject param = parameters.getJSONObject(j);
+                        System.out.println("      - " + param.getString("name"));
+                    }
+                }
+
+                // --- Lecture des options ---
+                JSONArray options = response.getJSONArray("options");
+                System.out.println("\n=== OPTIONS (" + options.length() + ") ===");
+
+                for (int i = 0; i < options.length(); i++) {
+                    JSONObject option = options.getJSONObject(i);
+
+                    String name = option.getString("label");
+                    String id   = option.getString("id");
+
+                    System.out.println("\n  Option " + (i + 1) + " :");
+                    System.out.println("    Name : " + name);
+                    System.out.println("    ID   : " + id);
+                }
+
+            } else {
+                System.out.println("Erreur serveur : " + responseBuilder);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la requête : " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
     public static void main(String[] args) {
         //apiGet();
-        apiPost(22_000_000);
+        apiPost(22_000_000, 5);
+        //apiGetDirector();
     }
 }
