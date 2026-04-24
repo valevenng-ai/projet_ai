@@ -10,6 +10,7 @@ public class ProducerNegociationBehaviour extends FSMBehaviour {
     private static final int TO_SEND = 1;
     private static final int TO_ACC = 2;
     private static final int TO_WAIT = 3;
+    private static final int TO_REF = 4;
 
 
     public ProducerNegociationBehaviour(ProducerAgent a){
@@ -33,10 +34,15 @@ public class ProducerNegociationBehaviour extends FSMBehaviour {
         s4.setDataStore(ds);
         registerLastState(s4, "ACCEPT");
 
+        RefuseBehaviour s5 = new RefuseBehaviour(a);
+        s5.setDataStore(ds);
+        registerLastState(s5, "REFUSE");
+
         registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
         registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);
         registerTransition("EVALUATE",  "ACCEPT", TO_ACC);
         registerTransition("SEND_PROPOSITION",  "WAIT_REPLY",  TO_WAIT);
+        registerTransition("EVALUATE",  "REFUSE",  TO_REF);
     }
 
     

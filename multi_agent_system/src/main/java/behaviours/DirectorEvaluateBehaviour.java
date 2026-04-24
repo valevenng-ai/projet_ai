@@ -5,21 +5,26 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import main.java.agents.DirectorAgent;
+import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 
 public class DirectorEvaluateBehaviour extends OneShotBehaviour{
+        int nextState;
         public DirectorEvaluateBehaviour(DirectorAgent a){
             super(a);
         }
 
         @Override
         public void action() {
-                Proposition proposition_received = (Proposition) getDataStore().get("proposition_received");
-                int budget_actuel = proposition_received.getBudget() + 2_500_000;
-                int duree = proposition_received.getDuree() + 10;
-                Proposition new_proposition = new Proposition(budget_actuel, duree);
-                getDataStore().put("proposition_to_send", new_proposition);
+                DirectorAgent agent = (DirectorAgent) myAgent;
+
+                Proposition proposition_received =
+                        (Proposition) getDataStore().get("proposition_received");
+
+                int receivedBudget = proposition_received.getBudget();
+
+
         }
-        @Override public int onEnd() { return 1; }
+        @Override public int onEnd() { return nextState; }
     
 }

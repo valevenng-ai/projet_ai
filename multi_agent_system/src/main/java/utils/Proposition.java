@@ -1,12 +1,10 @@
 package main.java.utils;
 public class Proposition {
     private int budget;
-    private int duree;   
     
 
-    public Proposition(int budget, int duree) {
+    public Proposition(int budget) {
         this.budget = budget;
-        this.duree = duree;
     }
 
     // Sérialisation vers JSON pour l'envoi dans ACLMessage
@@ -14,18 +12,15 @@ public class Proposition {
         return String.format(
             "{" +
             "\"budget\":%d,"   +
-            "\"duree\":%d,"    +
             "}",
-            budget,
-            duree
+            budget
         );
     }
 
     // Désérialisation depuis JSON reçu dans ACLMessage
     public static Proposition fromJSON(String json) {
         int budget = extraireInt(json,    "budget");
-        int duree = extraireInt(json,    "duree");
-        Proposition p = new Proposition(budget, duree);
+        Proposition p = new Proposition(budget);
         return p;
     }
 
@@ -36,10 +31,8 @@ public class Proposition {
         return String.format(
             "Proposition {" +
             "\n  budget  : %.1fM€" +
-            "\n  duree   : %dmin" +
             "\n}",
-            budget / 1_000_000.0,
-            duree
+            budget / 1_000_000.0
         );
     }
     
@@ -126,11 +119,4 @@ public class Proposition {
         this.budget = budget;
     }
 
-    public int getDuree() {
-        return this.duree;
-    }
-
-    public void setDuree(int duree) {
-        this.duree = duree;
-    }
 }

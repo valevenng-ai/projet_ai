@@ -21,8 +21,7 @@ import java.net.URL;
 public class ProducerAgent extends Agent{
     final static private int BUDGET_MAX = 20_000_000; 
     final static private int BUDGET_MIN = 15_000_000;
-    final static private int BUDGET_TARGET = 16_000_000; 
-    final static private int DUREE = 120; 
+    final static private int BUDGET_TARGET = 16_000_000;
 
     private static final int TO_EVAL = 0;
     private static final int TO_SEND = 1;
@@ -32,12 +31,12 @@ public class ProducerAgent extends Agent{
     private static final String API_URL = "https://api.ai-raison.com/executions/PRJ31125/latest";
     private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
 
-    public static void getDecision1(int budget){
+    public String getDecision1(int budget, int iteration){
         // ─── 1. Construction du body JSON ───────────────────────────────────────
 
         JSONObject paramBudget = new JSONObject();
         paramBudget.put("name", "Budget");
-        paramBudget.put("value", String.valueOf(22_000_000));
+        paramBudget.put("value", String.valueOf(budget));
 
         JSONObject paramMax = new JSONObject();
         paramMax.put("name", "Max");
@@ -46,6 +45,10 @@ public class ProducerAgent extends Agent{
         JSONObject paramMin = new JSONObject();
         paramMin.put("name", "Min");
         paramMin.put("value", String.valueOf(BUDGET_MIN));
+
+        JSONObject paramI = new JSONObject();
+        paramI.put("name", "I");
+        paramI.put("value", String.valueOf(iteration));
 
         JSONArray parameters1 = new JSONArray();
         parameters1.put(paramBudget);
@@ -72,16 +75,37 @@ public class ProducerAgent extends Agent{
         element3.put("label", "What's the min budget");
         element3.put("parameters", parameters3);
 
+        JSONArray parameters4 = new JSONArray();
+        parameters4.put(paramI);
+
+        JSONObject element4 = new JSONObject();
+        element4.put("id", "OPT411518");
+        element4.put("label", "What iteration");
+        element4.put("parameters", parameters4);
+
         JSONArray elements = new JSONArray();
         elements.put(element1);
         elements.put(element2);
         elements.put(element3);
+        elements.put(element4);
 
-        JSONObject option = new JSONObject();
-        option.put("id", "OPT402868");
+        JSONObject option1 = new JSONObject();
+        option1.put("id", "OPT403118");
+
+        JSONObject option2 = new JSONObject();
+        option2.put("id", "OPT402818");
+
+        JSONObject option3 = new JSONObject();
+        option3.put("id", "OPT402868");
+
+        JSONObject option4 = new JSONObject();
+        option4.put("id", "OPT402768");
 
         JSONArray options = new JSONArray();
-        options.put(option);
+        options.put(option1);
+        options.put(option2);
+        options.put(option3);
+        options.put(option4);
 
         JSONObject requestBody = new JSONObject();
         requestBody.put("elements", elements);
@@ -127,44 +151,31 @@ public class ProducerAgent extends Agent{
             reader.close();
 
             // ─── 4. Parsing et affichage de la réponse ──────────────────────────
+            JSONArray responseArray = new JSONArray(responseBuilder.toString());
 
-            if (statusCode >= 200 && statusCode < 300) {
-                JSONArray responseArray = new JSONArray(responseBuilder.toString());
-                for (int i = 0; i < responseArray.length(); i++) {
-                    JSONObject result = responseArray.getJSONObject(i);
+            for (int i = 0; i < responseArray.length(); i++) {
+                JSONObject result = responseArray.getJSONObject(i);
+                boolean isSolution = result.getBoolean("isSolution");
 
-                    JSONObject resultOption = result.getJSONObject("option");
-                    String optionId    = resultOption.getString("id");
-                    String optionLabel = resultOption.getString("label");
-
-                    boolean isSolution = result.getBoolean("isSolution");
-                    JSONArray explanations = result.getJSONArray("explanation");
-
-                    System.out.println("─────────────────────────────");
-                    System.out.println("Option ID    : " + optionId);
-                    System.out.println("Option Label : " + optionLabel);
-                    System.out.println("Is Solution  : " + isSolution);
-                    System.out.println("Explanation  :");
-                    for (int j = 0; j < explanations.length(); j++) {
-                        System.out.println("    - " + explanations.getString(j));
-                    }               
+                if (isSolution) {
+                    return result.getJSONObject("option").getString("label"); // 👈 retourne le label
                 }
-            } else {
-                System.out.println("Erreur serveur : " + responseBuilder);
             }
 
         } catch (Exception e) {
-            System.out.println("Erreur lors de la requête : " + e.getMessage());
+            System.out.println("Erreur : " + e.getMessage());
             e.printStackTrace();
         } finally {
             if (conn != null) {
                 conn.disconnect();
             }
         }
+
+        return null; // aucune solution trouvée
     }
 
     protected void setup(){
-        Proposition proposition = new Proposition(ProducerAgent.BUDGET_TARGET, ProducerAgent.DUREE);
+        Proposition proposition = new Proposition(ProducerAgent.BUDGET_TARGET);
 
         ACLMessage msg_sent = new ACLMessage(ACLMessage.PROPOSE);
                 msg_sent.addReceiver(new AID("Director", AID.ISLOCALNAME));

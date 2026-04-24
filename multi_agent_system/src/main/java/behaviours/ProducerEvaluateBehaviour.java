@@ -2,9 +2,11 @@ package main.java.behaviours;
 
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
+import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 
 public class ProducerEvaluateBehaviour extends OneShotBehaviour{
+        private int nextState;
 
         public ProducerEvaluateBehaviour(Agent a){
             super(a);
@@ -12,11 +14,43 @@ public class ProducerEvaluateBehaviour extends OneShotBehaviour{
 
         @Override
         public void action() {
-            Proposition proposition_received = (Proposition) getDataStore().get("proposition_received");
-            int budget_actuel = proposition_received.getBudget() - 2_500_000;
-            int duree = proposition_received.getDuree() - 10;
-            Proposition new_proposition = new Proposition(budget_actuel, duree);
-            getDataStore().put("proposition_to_send", new_proposition);
+            ProducerAgent agent = (ProducerAgent) myAgent;
+
+            Proposition proposition_received =
+                    (Proposition) getDataStore().get("proposition_received");
+
+            int i = (int) getDataStore().get("iteration");
+
+            int receivedBudget = proposition_received.getBudget();
+
+            String decision = agent.getDecision1(receivedBudget, i);
+
+            switch (decision) {
+                case "Accept proposition" -> nextState = 2;
+                case "Counter with higher budget" -> {
+                    nextState = 1;
+
+                    double counterPercentage = (5-i) * 0.05;
+
+                    int newBudget =  (int)Math.round(receivedBudget * (1 + counterPercentage));
+
+                    Proposition newProposition = new Proposition(newBudget);
+
+                    getDataStore().put("proposition_to_send", newProposition);
+                }
+                case "Counter with less budget" -> {
+                    nextState = 1;
+
+                    double counterPercentage = (5-i) * 0.05;
+
+                    int newBudget =  (int)Math.round(receivedBudget * (1 - counterPercentage));
+
+                    Proposition newProposition = new Proposition(newBudget);
+
+                    getDataStore().put("proposition_to_send", newProposition);
+                }
+                case "End negociation" -> nextState = 4;
+            }
         }
-        @Override public int onEnd() { return 1; }
+        @Override public int onEnd() { return nextState; }
     }
