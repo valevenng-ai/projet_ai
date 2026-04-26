@@ -15,6 +15,7 @@ public class DirectorNegociationBehaviour extends FSMBehaviour{
     private static final int TO_ACC = 2;
     private static final int TO_WAIT = 3;
     private static final int TO_REF = 4;
+    private static final int TO_END = 5;
 
 
     public DirectorNegociationBehaviour(DirectorAgent a){
@@ -39,10 +40,15 @@ public class DirectorNegociationBehaviour extends FSMBehaviour{
         s5.setDataStore(ds);
         registerLastState(s5, "REFUSE");
 
+        EndBehaviour s6 = new EndBehaviour(a);
+        s6.setDataStore(ds);
+        registerLastState(s6, "END");
+
         registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
         registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);
         registerTransition("EVALUATE",  "ACCEPT", TO_ACC);
         registerTransition("SEND_PROPOSITION",  "WAIT_REPLY",  TO_WAIT);
         registerTransition("EVALUATE",  "REFUSE",  TO_REF);
+        registerTransition("WAIT_REPLY",  "END",  TO_END);
     }
 }

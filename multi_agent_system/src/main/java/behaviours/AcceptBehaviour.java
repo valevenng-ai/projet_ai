@@ -23,7 +23,7 @@ public class AcceptBehaviour extends OneShotBehaviour{
             else {
                 msg.addReceiver(new AID("Producer", AID.ISLOCALNAME));
             }
-            msg.setContent("Proposition acceptée");
+            msg.setContent("Proposal accepted");
             myAgent.send(msg);
         }
         

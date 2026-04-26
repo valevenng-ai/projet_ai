@@ -11,7 +11,7 @@ public class Proposition {
     public String toJSON() {
         return String.format(
             "{" +
-            "\"budget\":%d,"   +
+            "\"budget\":%d"   +
             "}",
             budget
         );
@@ -19,7 +19,7 @@ public class Proposition {
 
     // Désérialisation depuis JSON reçu dans ACLMessage
     public static Proposition fromJSON(String json) {
-        int budget = extraireInt(json,    "budget");
+        int budget = extraireInt(json,"budget");
         Proposition p = new Proposition(budget);
         return p;
     }

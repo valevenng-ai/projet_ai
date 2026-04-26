@@ -23,7 +23,7 @@ public class RefuseBehaviour extends OneShotBehaviour{
         else {
             msg.addReceiver(new AID("Producer", AID.ISLOCALNAME));
         }
-        msg.setContent("Accord non trouvé, fin de négociation");
+        msg.setContent("Proposal refused");
         myAgent.send(msg);
     }
 

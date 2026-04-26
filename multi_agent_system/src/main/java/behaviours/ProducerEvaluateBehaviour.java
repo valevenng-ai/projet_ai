@@ -19,31 +19,22 @@ public class ProducerEvaluateBehaviour extends OneShotBehaviour{
             Proposition proposition_received =
                     (Proposition) getDataStore().get("proposition_received");
 
+            int receivedBudget = proposition_received.getBudget();
+
             int i = (int) getDataStore().get("iteration");
 
-            int receivedBudget = proposition_received.getBudget();
+            int maxBudget = (int) getDataStore().get("BUDGET_MAX");
 
             String decision = agent.getDecision1(receivedBudget, i);
 
             switch (decision) {
                 case "Accept proposition" -> nextState = 2;
-                case "Counter with higher budget" -> {
+                case "Counter with higher budget", "Counter with less budget" -> {
                     nextState = 1;
 
                     double counterPercentage = (5-i) * 0.05;
 
-                    int newBudget =  (int)Math.round(receivedBudget * (1 + counterPercentage));
-
-                    Proposition newProposition = new Proposition(newBudget);
-
-                    getDataStore().put("proposition_to_send", newProposition);
-                }
-                case "Counter with less budget" -> {
-                    nextState = 1;
-
-                    double counterPercentage = (5-i) * 0.05;
-
-                    int newBudget =  (int)Math.round(receivedBudget * (1 - counterPercentage));
+                    int newBudget =  (int)Math.round(maxBudget * (1 - counterPercentage));
 
                     Proposition newProposition = new Proposition(newBudget);
 
