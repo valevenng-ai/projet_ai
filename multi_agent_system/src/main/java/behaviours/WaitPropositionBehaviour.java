@@ -5,6 +5,7 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import main.java.utils.Proposition;
+import main.java.utils.RepartitionBudget;
 
 public class WaitPropositionBehaviour extends OneShotBehaviour{
 
@@ -29,11 +30,21 @@ public class WaitPropositionBehaviour extends OneShotBehaviour{
             switch (performative) {
 
                 case ACLMessage.PROPOSE:
-                    // Nouvelle proposition
-                    Proposition p = Proposition.fromJSON(reply.getContent());
-                    getDataStore().put("proposition_received", p);
+                    int phase = (int) getDataStore().get("phase");
 
-                    nextState = 0;
+                    if (phase == 1){
+                        // Nouvelle proposition
+                        Proposition p = Proposition.fromJSON(reply.getContent());
+                        getDataStore().put("proposition_received", p);
+
+                        nextState = 0;
+                    }
+                    else {
+                        RepartitionBudget r = RepartitionBudget.fromJSON(reply.getContent());
+                        getDataStore().put("repartition_received", r);
+
+                        nextState = 0;
+                    }
                     break;
 
                 case ACLMessage.ACCEPT_PROPOSAL:

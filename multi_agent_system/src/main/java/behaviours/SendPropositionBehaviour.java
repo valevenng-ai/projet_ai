@@ -6,6 +6,7 @@ import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
+import main.java.utils.RepartitionBudget;
 
 public class SendPropositionBehaviour extends OneShotBehaviour {
 
@@ -20,7 +21,7 @@ public class SendPropositionBehaviour extends OneShotBehaviour {
             iteration++;
             getDataStore().put("iteration", iteration);
 
-            Proposition prop = (Proposition) getDataStore().get("proposition_to_send");
+
             ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
             if (myAgent instanceof ProducerAgent){
                 msg.addReceiver(new AID("Director", AID.ISLOCALNAME));
@@ -30,7 +31,17 @@ public class SendPropositionBehaviour extends OneShotBehaviour {
             else {
                 msg.addReceiver(new AID("Producer", AID.ISLOCALNAME));
             }
-            msg.setContent(prop.toJSON());
+
+            int phase = (int) getDataStore().get("phase");
+
+            if (phase == 1){
+                Proposition prop = (Proposition) getDataStore().get("proposition_to_send");
+                msg.setContent(prop.toJSON());
+            }
+            else {
+                RepartitionBudget rep = (RepartitionBudget) getDataStore().get("repartition_to_send");
+                msg.setContent(rep.toJSON());
+            }
             myAgent.send(msg);
         }
         @Override public int onEnd() { return 3; }

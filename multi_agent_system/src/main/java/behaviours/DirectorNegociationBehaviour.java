@@ -36,6 +36,10 @@ public class DirectorNegociationBehaviour extends FSMBehaviour{
         s3.setDataStore(ds);
         registerState(s3, "SEND_PROPOSITION");
 
+        AcceptBehaviour s4 = new AcceptBehaviour(a);
+        s4.setDataStore(ds);
+        registerState(s4, "ACCEPT");
+
         RefuseBehaviour s5 = new RefuseBehaviour(a);
         s5.setDataStore(ds);
         registerLastState(s5, "REFUSE");
