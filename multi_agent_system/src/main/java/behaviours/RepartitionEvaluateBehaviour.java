@@ -21,11 +21,11 @@ public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
             RepartitionBudget p,
             Map<String, Integer> planchers) {
 
-        if (p.getScript() < planchers.getOrDefault("script", 0)) return false;
-        if (p.getProduction() < planchers.getOrDefault("production", 0)) return false;
-        if (p.getCasting() < planchers.getOrDefault("casting", 0)) return false;
-        if (p.getVfx() < planchers.getOrDefault("vfx", 0)) return false;
-        if (p.getMusic() < planchers.getOrDefault("music", 0)) return false;
+        if (p.getScript() <= planchers.getOrDefault("script", 0)) return false;
+        if (p.getProduction() <= planchers.getOrDefault("production", 0)) return false;
+        if (p.getCasting() <= planchers.getOrDefault("casting", 0)) return false;
+        if (p.getVfx() <= planchers.getOrDefault("vfx", 0)) return false;
+        if (p.getMusic() <= planchers.getOrDefault("music", 0)) return false;
 
         return true;
     }
@@ -54,7 +54,7 @@ public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
 
         RepartitionBudget propositionCourante =
                 (RepartitionBudget) getDataStore()
-                        .get("repartition_courante");
+                        .get("repartition_to_send");
 
         int iteration = (int) getDataStore().get("iteration");
 
@@ -75,7 +75,6 @@ public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
                 ecartTotal, planchersRespected
                 );
 
-
         switch (decision) {
             case "Accept" -> nextState = 2;
             case "Reevaluate" -> {
@@ -91,5 +90,10 @@ public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
                 );
             }
         }
+    }
+
+    @Override
+    public int onEnd() {
+        return nextState;
     }
 }

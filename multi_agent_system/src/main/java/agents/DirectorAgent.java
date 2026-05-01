@@ -17,16 +17,33 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DirectorAgent extends Agent implements Phase2Agent{
     final static private int BUDGET_MIN = 15_000_000;
 
     private Map<String, Integer> planchers;
 
+    private static final Map<String, Integer> PRIORITES =
+            new LinkedHashMap<>() {{
+                put("script",     30);
+                put("production", 90);
+                put("casting",    20);
+                put("vfx",        65);
+                put("music",      70);
+            }};
+
+    public Map<String, Integer> getPriorites() {
+        return PRIORITES;
+    }
+
     private static final String API_URL = "https://api.ai-raison.com/executions/PRJ32025/latest";
     private static final String API_URL_PHASE2 = "https://api.ai-raison.com/executions/PRJ32125/latest";
-    private static final String API_KEY = "qiezMHtEPxaqORBSerFNZ1F2ynE6hwvt44Mok2wW";
+    private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
+
     private int budgetAccorde;
 
     public String getDecision1(int budget, int iteration){
@@ -167,7 +184,7 @@ public class DirectorAgent extends Agent implements Phase2Agent{
     public void setBudgetAccorde(int budget) {
         this.budgetAccorde = budget;
         this.planchers = Planchers
-                .calculerPlanchersProducteur(budget);
+                .calculerPlanchersRealisateur(budget);
     }
 
     public int getBudgetAccorde(){
@@ -220,7 +237,7 @@ public class DirectorAgent extends Agent implements Phase2Agent{
         element4.put("parameters", parameters4);
 
         JSONArray parameters5 = new JSONArray();
-        parameters4.put(paramI);
+        parameters5.put(paramF);
 
         JSONObject element5 = new JSONObject();
         element5.put("id", "OPT433068");
@@ -313,9 +330,268 @@ public class DirectorAgent extends Agent implements Phase2Agent{
         return null; // aucune solution trouvée
     }
 
+    /**
+     * Calcule la nouvelle valeur d'un poste budgétaire
+     * en concédant progressivement vers la valeur reçue.
+     *
+     * @param valeurIdeale  valeur souhaitée par l'agent
+     * @param valeurRecue   valeur proposée par l'adversaire
+     * @param taux          taux de concession (entre 0.0 et 1.0)
+     * @param plancher      valeur minimale acceptable
+     * @return              nouvelle valeur après concession
+     */
+    public static int calculerNouvelleValeur(
+            int valeurIdeale,
+            int valeurRecue,
+            double taux,
+            int plancher) {
+
+        // Écart entre la position idéale et la proposition reçue
+        int ecart = valeurIdeale - valeurRecue;
+
+        // Concéder une fraction de l'écart
+        // vers la proposition reçue
+        int nouvelleValeur = (int)(valeurIdeale - (ecart * taux));
+
+        // Garantir le plancher absolu
+        return Math.max(nouvelleValeur, plancher);
+    }
+
+    /**
+     * Rééquilibre la répartition pour que la somme
+     * des postes soit exactement égale au budget total.
+     * L'ajustement se fait sur le poste le moins
+     * prioritaire selon le profil de l'agent.
+     *
+     * @param offre         répartition à reequilibrer
+     * @param budgetTotal   budget total à respecter
+     * @param planchers     planchers par poste
+     * @param priorites     priorités par poste
+     * @return              répartition rééquilibrée
+     */
+    public static RepartitionBudget reequilibrer(
+            RepartitionBudget offre,
+            int budgetTotal,
+            Map<String, Integer> planchers,
+            Map<String, Integer> priorites) {
+
+        int somme = offre.getScript()
+                + offre.getProduction()
+                + offre.getCasting()
+                + offre.getVfx()
+                + offre.getMusic();
+
+        int diff = budgetTotal - somme;
+
+        // Déjà équilibré
+        if (diff == 0) return offre;
+
+        // Trier les postes par priorité croissante
+        // → ajuster en priorité sur les postes
+        //   les moins importants pour l'agent
+        List<String> postesParPriorite = priorites
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // Parcourir les postes du moins au plus prioritaire
+        // et ajuster tant que diff != 0
+        Map<String, Integer> valeurs = new LinkedHashMap<>();
+        valeurs.put("script",          offre.getScript());
+        valeurs.put("production",      offre.getProduction());
+        valeurs.put("casting",         offre.getCasting());
+        valeurs.put("vfx",             offre.getVfx());
+        valeurs.put("music",           offre.getMusic());
+
+        for (String poste : postesParPriorite) {
+            if (diff == 0) break;
+
+            int valeurActuelle = valeurs.get(poste);
+            int plancher       = planchers.getOrDefault(poste, 0);
+
+            if (diff > 0) {
+                // Somme trop faible → augmenter ce poste
+                valeurs.put(poste, valeurActuelle + diff);
+                diff = 0;
+
+            } else {
+                // Somme trop élevée → réduire ce poste
+                // sans descendre sous le plancher
+                int reduction = Math.min(
+                        Math.abs(diff),
+                        valeurActuelle - plancher
+                );
+                valeurs.put(poste, valeurActuelle - reduction);
+                diff += reduction;
+            }
+        }
+
+        // Si diff != 0 après tous les postes
+        // → budget incompatible avec les planchers
+        if (diff != 0) {
+            System.err.println(
+                    "[reequilibrer] Impossible d'équilibrer : " +
+                            "diff restant = " + diff +
+                            " — planchers trop élevés pour le budget"
+            );
+        }
+
+        return new RepartitionBudget(
+                valeurs.get("script"),
+                valeurs.get("production"),
+                valeurs.get("casting"),
+                valeurs.get("vfx"),
+                valeurs.get("music")
+        );
+    }
+    // Génère la première offre Phase 2
+// basée sur les priorités du réalisateur
+    public RepartitionBudget genererPremiereOffrePhase2() {
+
+        int budgetTotal = getBudgetAccorde();
+
+        // Calcul de la somme totale des priorités
+        int sommePriorites = PRIORITES.values().stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        // Calcul de chaque poste proportionnellement
+        // à sa priorité
+        Map<String, Integer> planchers = getPlanchers();
+
+        int script     = (int)(budgetTotal
+                * PRIORITES.get("script")
+                / (double) sommePriorites);
+        int production = (int)(budgetTotal
+                * PRIORITES.get("production")
+                / (double) sommePriorites);
+        int casting    = (int)(budgetTotal
+                * PRIORITES.get("casting")
+                / (double) sommePriorites);
+        int vfx        = (int)(budgetTotal
+                * PRIORITES.get("vfx")
+                / (double) sommePriorites);
+        int music      = (int)(budgetTotal
+                * PRIORITES.get("music")
+                / (double) sommePriorites);
+
+        // Vérification des planchers
+        script     = Math.max(script,     planchers.get("script"));
+        production = Math.max(production, planchers.get("production"));
+        casting    = Math.max(casting,    planchers.get("casting"));
+        vfx        = Math.max(vfx,        planchers.get("vfx"));
+        music      = Math.max(music,      planchers.get("music"));
+
+        // Rééquilibrage pour respecter le budget total
+        RepartitionBudget offre = new RepartitionBudget(
+                script, production, casting, vfx, music
+        );
+        offre = reequilibrer(
+                offre, budgetTotal, planchers, PRIORITES
+        );
+
+        System.out.println(
+                "[DirectorAgent] Première offre Phase 2 :" +
+                        "\n  Script     : " + offre.getScript()     / 1_000_000.0 + "M€" +
+                        "\n  Production : " + offre.getProduction() / 1_000_000.0 + "M€" +
+                        "\n  Casting    : " + offre.getCasting()    / 1_000_000.0 + "M€" +
+                        "\n  VFX        : " + offre.getVfx()        / 1_000_000.0 + "M€" +
+                        "\n  Musique    : " + offre.getMusic()       / 1_000_000.0 + "M€"
+        );
+
+        return offre;
+    }
+
+    // Génère une contre-offre Phase 2
+// pour le réalisateur
     @Override
-    public RepartitionBudget genererContreOffrePhase2(RepartitionBudget recue, int iteration) {
-        return null;
+    public RepartitionBudget genererContreOffrePhase2(
+            RepartitionBudget recue, int iteration) {
+
+        int budgetTotal    = getBudgetAccorde();
+        int maxIterations  = 5;
+
+        Map<String, Integer> planchers = getPlanchers();
+
+        // Taux de concession augmente avec les itérations
+        // le réalisateur cède de plus en plus
+        double tauxConcession = (double) iteration / maxIterations;
+
+        // Position idéale du réalisateur
+        RepartitionBudget ideale = genererPremiereOffrePhase2();
+
+        // Pour chaque poste, concéder en direction
+        // de la proposition reçue selon la priorité
+
+        // Script (priorité 50 — moyenne)
+        int script = calculerNouvelleValeur(
+                ideale.getScript(),
+                recue.getScript(),
+                tauxConcession * 0.75,   // taux base 20%
+                planchers.get("script")
+        );
+
+        // Production (priorité 90 — très haute)
+        // résiste fortement
+        int production = calculerNouvelleValeur(
+                ideale.getProduction(),
+                recue.getProduction(),
+                tauxConcession * 0.50,   // taux base 5%
+                planchers.get("production")
+        );
+
+        // Casting (priorité 30 — faible)
+        // cède facilement
+        int casting = calculerNouvelleValeur(
+                ideale.getCasting(),
+                recue.getCasting(),
+                tauxConcession * 0.95,   // taux base 40%
+                planchers.get("casting")
+        );
+
+        // VFX (priorité 75 — haute)
+        int vfx = calculerNouvelleValeur(
+                ideale.getVfx(),
+                recue.getVfx(),
+                tauxConcession * 0.60,   // taux base 5%
+                planchers.get("vfx")
+        );
+
+        // Musique (priorité 80 — haute)
+        int music = calculerNouvelleValeur(
+                ideale.getMusic(),
+                recue.getMusic(),
+                tauxConcession * 0.60,   // taux base 5%
+                planchers.get("music")
+        );
+
+        // Package deal si dernières itérations
+        // et écart encore important
+        if (iteration >= maxIterations - 1) {
+            // Cède sur casting (priorité faible)
+            // pour préserver VFX et musique
+            casting = recue.getCasting();
+        }
+
+        RepartitionBudget offre = new RepartitionBudget(
+                script, production, casting, vfx, music
+        );
+
+        // Rééquilibrage obligatoire
+        offre = reequilibrer(offre, budgetTotal, planchers, PRIORITES);
+
+        System.out.println(
+                "[DirectorAgent] Contre-offre Phase 2" +
+                        " iteration " + iteration + " :" +
+                        "\n  Script     : " + offre.getScript()     / 1_000_000.0 + "M€" +
+                        "\n  Production : " + offre.getProduction() / 1_000_000.0 + "M€" +
+                        "\n  Casting    : " + offre.getCasting()    / 1_000_000.0 + "M€" +
+                        "\n  VFX        : " + offre.getVfx()        / 1_000_000.0 + "M€" +
+                        "\n  Musique    : " + offre.getMusic()       / 1_000_000.0 + "M€"
+        );
+
+        return offre;
     }
 
     protected void setup(){
@@ -323,7 +599,7 @@ public class DirectorAgent extends Agent implements Phase2Agent{
 
         negociationBehaviour.getDataStore().put("BUDGET_MIN", DirectorAgent.BUDGET_MIN);
 
-        int iteration = 3;
+        int iteration = 5;
         negociationBehaviour.getDataStore().put("iteration", iteration);
 
         negociationBehaviour.getDataStore().put("phase", 1);

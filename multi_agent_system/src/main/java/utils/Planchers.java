@@ -8,21 +8,21 @@ public class Planchers {
     // Pourcentages réalisateur par poste
     private static final Map<String, Double>
             POURCENTAGES_REALISATEUR = Map.of(
-            "script",           0.04,
-            "production",       0.25,
-            "casting",          0.08,
-            "effets_speciaux",  0.15,
-            "musique",          0.07
+            "script",           0.03,
+            "production",       0.15,
+            "casting",          0.02,
+            "vfx",  0.10,
+            "music",          0.05
     );
 
     // Pourcentages producteur par poste
     private static final Map<String, Double>
             POURCENTAGES_PRODUCTEUR = Map.of(
             "script",           0.02,
-            "production",       0.18,
-            "casting",          0.20,
-            "effets_speciaux",  0.04,
-            "musique",          0.02
+            "production",       0.08,
+            "casting",          0.13,
+            "vfx",  0.10,
+            "music",          0.02
     );
 
     // Calcule les planchers réalisateur

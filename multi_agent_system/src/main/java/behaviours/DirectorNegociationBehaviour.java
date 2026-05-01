@@ -16,6 +16,8 @@ public class DirectorNegociationBehaviour extends FSMBehaviour{
     private static final int TO_WAIT = 3;
     private static final int TO_REF = 4;
     private static final int TO_END = 5;
+    private static final int TO_RE_EVAL = 6;
+    private static final int TO_P2 = 7;
 
 
     public DirectorNegociationBehaviour(DirectorAgent a){
@@ -48,11 +50,26 @@ public class DirectorNegociationBehaviour extends FSMBehaviour{
         s6.setDataStore(ds);
         registerLastState(s6, "END");
 
+        RepartitionEvaluateBehaviour s7 = new RepartitionEvaluateBehaviour(a);
+        s7.setDataStore(ds);
+        registerState(s7, "REPARTITION_EVALUATE");
+
+        Phase2InitBehaviour s8 = new Phase2InitBehaviour(a);
+        s8.setDataStore(ds);
+        registerState(s8, "P2");
+
         registerTransition("WAIT_REPLY",  "EVALUATE",  TO_EVAL);
         registerTransition("EVALUATE", "SEND_PROPOSITION", TO_SEND);
         registerTransition("EVALUATE",  "ACCEPT", TO_ACC);
         registerTransition("SEND_PROPOSITION",  "WAIT_REPLY",  TO_WAIT);
         registerTransition("EVALUATE",  "REFUSE",  TO_REF);
         registerTransition("WAIT_REPLY",  "END",  TO_END);
+        registerTransition("ACCEPT",  "P2",  TO_P2);
+        registerTransition("ACCEPT",  "END",  TO_END);
+        registerTransition("WAIT_REPLY",  "REPARTITION_EVALUATE",  TO_RE_EVAL);
+        registerTransition("WAIT_REPLY",  "P2",  TO_P2);
+        registerTransition("P2",  "WAIT_REPLY",  TO_WAIT);
+        registerTransition("REPARTITION_EVALUATE",  "ACCEPT",  TO_ACC);
+        registerTransition("REPARTITION_EVALUATE",  "SEND_PROPOSITION",  TO_SEND);
     }
 }

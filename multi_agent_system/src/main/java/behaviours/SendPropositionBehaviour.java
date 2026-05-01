@@ -41,6 +41,7 @@ public class SendPropositionBehaviour extends OneShotBehaviour {
             else {
                 RepartitionBudget rep = (RepartitionBudget) getDataStore().get("repartition_to_send");
                 msg.setContent(rep.toJSON());
+
             }
             myAgent.send(msg);
         }

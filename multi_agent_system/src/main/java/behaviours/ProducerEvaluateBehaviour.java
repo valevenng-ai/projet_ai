@@ -28,7 +28,10 @@ public class ProducerEvaluateBehaviour extends OneShotBehaviour{
             String decision = agent.getDecision1(receivedBudget, i);
 
             switch (decision) {
-                case "Accept proposition" -> nextState = 2;
+                case "Accept proposition" -> {
+                    agent.setBudgetAccorde(receivedBudget);
+                    nextState = 2;
+                }
                 case "Counter with higher budget", "Counter with less budget" -> {
                     nextState = 1;
 

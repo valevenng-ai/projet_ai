@@ -4,6 +4,8 @@ import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
+import main.java.agents.Phase2Agent;
+import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 import main.java.utils.RepartitionBudget;
 
@@ -27,11 +29,11 @@ public class WaitPropositionBehaviour extends OneShotBehaviour{
             + "\n" + reply.getContent().toString());
             int performative = reply.getPerformative();
 
+            int phase = (int) getDataStore().get("phase");
+
             switch (performative) {
 
                 case ACLMessage.PROPOSE:
-                    int phase = (int) getDataStore().get("phase");
-
                     if (phase == 1){
                         // Nouvelle proposition
                         Proposition p = Proposition.fromJSON(reply.getContent());
@@ -43,16 +45,26 @@ public class WaitPropositionBehaviour extends OneShotBehaviour{
                         RepartitionBudget r = RepartitionBudget.fromJSON(reply.getContent());
                         getDataStore().put("repartition_received", r);
 
-                        nextState = 0;
+                        nextState = 6;
                     }
                     break;
 
                 case ACLMessage.ACCEPT_PROPOSAL:
-                    // Accord trouvé
-                    System.out.println("Agreement reached!");
+                    if (phase == 1){
+                        Phase2Agent agent = (Phase2Agent) myAgent;
+                        Proposition prop = (Proposition) getDataStore().get("proposition_to_send");
+                        int budget = prop.getBudget();
+                        agent.setBudgetAccorde(budget);
+                        nextState = 7;
+                        break;
+                    }
+                    else{
+                        System.out.println("Agreement reached!");
 
-                    nextState = 5;
-                    break;
+                        nextState = 5;
+                        break;
+                    }
+
 
                 case ACLMessage.CANCEL:
                     // Fin de négociation sans accord
@@ -69,4 +81,4 @@ public class WaitPropositionBehaviour extends OneShotBehaviour{
             }
         }
         @Override public int onEnd() {return nextState; }
-    }
+}
