@@ -8,6 +8,7 @@ import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 import main.java.utils.RepartitionBudget;
 
+// Behaviour pour envoyer un message à l'autre agent
 public class SendPropositionBehaviour extends OneShotBehaviour {
 
         public SendPropositionBehaviour(Agent a){

@@ -4,7 +4,7 @@ import jade.core.behaviours.DataStore;
 import jade.core.behaviours.FSMBehaviour;
 import main.java.agents.ProducerAgent;
 
-
+// FSMBehaviour qui gère toute la négociation du Producteur
 public class ProducerNegociationBehaviour extends FSMBehaviour {
     private static final int TO_EVAL = 0;
     private static final int TO_SEND = 1;

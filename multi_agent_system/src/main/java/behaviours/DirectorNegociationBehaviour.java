@@ -9,6 +9,9 @@ import jade.lang.acl.ACLMessage;
 import main.java.agents.DirectorAgent;
 import main.java.utils.Proposition;
 
+/**
+ * FSMBehaviour qui gère toute la négocation du réalisateur.
+ */
 public class DirectorNegociationBehaviour extends FSMBehaviour{
     private static final int TO_EVAL = 0;
     private static final int TO_SEND = 1;

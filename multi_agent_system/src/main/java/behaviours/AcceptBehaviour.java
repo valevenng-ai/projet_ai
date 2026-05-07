@@ -7,6 +7,7 @@ import jade.lang.acl.ACLMessage;
 import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 
+// Behaviour pour envoyer un message ACCEPT_PROPOSAL
 public class AcceptBehaviour extends OneShotBehaviour{
         int nextState;
 

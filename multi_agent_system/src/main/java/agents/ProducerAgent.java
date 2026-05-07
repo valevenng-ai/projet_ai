@@ -32,8 +32,6 @@ public class ProducerAgent extends Agent implements Phase2Agent{
     private Map<String, Integer> planchers;
 
     // Priorités du producteur
-// casting est le plus important
-// music est le moins important
     private static final Map<String, Integer> PRIORITES =
             new LinkedHashMap<>() {{
                 put("script",     15);
@@ -51,6 +49,12 @@ public class ProducerAgent extends Agent implements Phase2Agent{
     private static final String API_URL_PHASE2 = "https://api.ai-raison.com/executions/PRJ32125/latest";
     private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
 
+
+    /**
+     * @param budget Budget proposé par le réalisateur
+     * @param iteration Iteration actuelle
+     * @return
+     */
     public String getDecision1(int budget, int iteration){
         // ─── 1. Construction du body JSON ───────────────────────────────────────
 
@@ -209,6 +213,14 @@ public class ProducerAgent extends Agent implements Phase2Agent{
         return budgetAccorde;
     }
 
+    /**
+     * Appelle l'api Raison et obtient la décision pour la phase 2.
+     * @param budget Budget total convenue pendant la phase 1
+     * @param iteration L'iteration actuelle
+     * @param gap   L'écart totale entre les répartitions proposées par les deux agents
+     * @param floors_respected  Si les seuils sont respectés
+     * @return
+     */
     @Override
     public String getDecision2(int budget, int iteration, int gap, boolean floors_respected){
         // ─── 1. Construction du body JSON ───────────────────────────────────────

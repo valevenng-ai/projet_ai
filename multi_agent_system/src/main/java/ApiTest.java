@@ -25,7 +25,7 @@ public class ApiTest {
 
     private static final String API_URL = "https://api.ai-raison.com/executions/PRJ31125/latest";
     private static final String API_URL_DIRECTOR = "https://api.ai-raison.com/executions/PRJ32025/latest";
-    private static final String API_KEY = "qiezMHtEPxaqORBSerFNZ1F2ynE6hwvt44Mok2wW";
+    private static final String API_KEY = "QwVTG1jIpX1AhVd29g8kG9GTfrJAepfV5N34xiMh";
     private static final String API_URL_PHASE2 = "https://api.ai-raison.com/executions/PRJ32125/latest";
 
     public static void apiPost(int budget, int iteration){
@@ -1004,13 +1004,13 @@ public class ApiTest {
     }
 
     public static void main(String[] args) {
-        //apiGet();
+        apiGet();
         //apiPost(22_000_000, 5);
         //apiGetDirector();
         //System.out.println(getDecision1(18_000_000, 5));
         //apiPostDirector(16_000_000, 5);
         //System.out.println(getDecision1Director(16_000_000, 5));
         //apiGetPhase2();
-        System.out.println(getDecision2(18_000_000, 4, 1_000_000, false));
+        //System.out.println(getDecision2(18_000_000, 4, 1_000_000, false));
     }
 }

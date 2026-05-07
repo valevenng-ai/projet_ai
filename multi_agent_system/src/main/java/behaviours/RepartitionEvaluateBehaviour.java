@@ -10,6 +10,9 @@ import main.java.utils.RepartitionBudget;
 
 import java.util.Map;
 
+/**
+ * Behaviour pour évaluer une répartition proposée.
+ */
 public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
     int nextState;
 
@@ -17,6 +20,13 @@ public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
         super(a);
     }
 
+
+    /**
+     * Vérifie si la répartition respecte les planchers
+     * @param p Répartition du budget reçue
+     * @param planchers Les planchers par postes
+     * @return
+     */
     public static boolean respectePlanchers(
             RepartitionBudget p,
             Map<String, Integer> planchers) {
@@ -30,6 +40,12 @@ public class RepartitionEvaluateBehaviour extends OneShotBehaviour {
         return true;
     }
 
+    /**
+     * Calcul l'écart total entre 2 répartition
+     * @param p1
+     * @param p2
+     * @return
+     */
     public static int calculEcartTotal(
             RepartitionBudget p1,
             RepartitionBudget p2) {

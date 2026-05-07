@@ -47,6 +47,8 @@ public class DirectorAgent extends Agent implements Phase2Agent{
     private int budgetAccorde;
 
     public String getDecision1(int budget, int iteration){
+        /* Appelle l'api Raison et obtient la décision pour la phase 1. */
+
         // ─── 1. Construction du body JSON ───────────────────────────────────────
 
         JSONObject paramBudget = new JSONObject();
@@ -191,6 +193,14 @@ public class DirectorAgent extends Agent implements Phase2Agent{
         return budgetAccorde;
     }
 
+    /**
+     * Appelle l'api Raison et obtient la décision pour la phase 2.
+     * @param budget Budget total convenue pendant la phase 1
+     * @param iteration L'iteration actuelle
+     * @param gap   L'écart totale entre les répartitions proposées par les deux agents
+     * @param floors_respected  Si les seuils sont respectés
+     * @return
+     */
     public String getDecision2(int budget, int iteration, int gap, boolean floors_respected){
         // ─── 1. Construction du body JSON ───────────────────────────────────────
 
@@ -445,8 +455,9 @@ public class DirectorAgent extends Agent implements Phase2Agent{
                 valeurs.get("music")
         );
     }
+
     // Génère la première offre Phase 2
-// basée sur les priorités du réalisateur
+    // basée sur les priorités du réalisateur
     public RepartitionBudget genererPremiereOffrePhase2() {
 
         int budgetTotal = getBudgetAccorde();
@@ -504,7 +515,7 @@ public class DirectorAgent extends Agent implements Phase2Agent{
     }
 
     // Génère une contre-offre Phase 2
-// pour le réalisateur
+    // pour le réalisateur
     @Override
     public RepartitionBudget genererContreOffrePhase2(
             RepartitionBudget recue, int iteration) {

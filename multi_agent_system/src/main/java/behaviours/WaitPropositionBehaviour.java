@@ -9,6 +9,7 @@ import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 import main.java.utils.RepartitionBudget;
 
+// Behaviour pour attendre les messages
 public class WaitPropositionBehaviour extends OneShotBehaviour{
 
         private int nextState;

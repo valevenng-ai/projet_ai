@@ -7,6 +7,7 @@ import main.java.agents.ProducerAgent;
 import main.java.utils.Proposition;
 import main.java.utils.RepartitionBudget;
 
+// Behaviour utilisé au début de la phase 2 pour réinitialiser le nombre d'itération etc..
 public class Phase2InitBehaviour extends OneShotBehaviour {
     public int nextState;
 
