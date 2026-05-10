@@ -1004,13 +1004,13 @@ public class ApiTest {
     }
 
     public static void main(String[] args) {
-        apiGet();
+        //apiGet();
         //apiPost(22_000_000, 5);
         //apiGetDirector();
         //System.out.println(getDecision1(18_000_000, 5));
         //apiPostDirector(16_000_000, 5);
         //System.out.println(getDecision1Director(16_000_000, 5));
-        //apiGetPhase2();
+        apiGetPhase2();
         //System.out.println(getDecision2(18_000_000, 4, 1_000_000, false));
     }
 }

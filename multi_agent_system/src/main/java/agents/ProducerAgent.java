@@ -288,9 +288,13 @@ public class ProducerAgent extends Agent implements Phase2Agent{
         JSONObject option2 = new JSONObject();
         option2.put("id", "OPT421418");
 
+        JSONObject option3 = new JSONObject();
+        option2.put("id", "OPT441518");
+
         JSONArray options = new JSONArray();
         options.put(option1);
         options.put(option2);
+        options.put(option3);
 
         JSONObject requestBody = new JSONObject();
         requestBody.put("elements", elements);
